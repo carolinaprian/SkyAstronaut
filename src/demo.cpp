@@ -98,23 +98,19 @@ struct Player
 
     bool loadTexture(const string &path)
     {
+        // Try loading three separate state sheets (idle, jump, fall)
         bool any = false;
-        string prefix;
-        size_t pos = path.find_last_of("/\\");
-        if (pos != string::npos)
-            prefix = path.substr(0, pos + 1);
-
-        if (idleAnim.load(prefix + "astronaut_idle.png", 2, 96, 96))
+        if (idleAnim.load("assets/images/astronaut_idle.png", 2, 96, 96))
         {
             any = true;
             idleAnim.frameTime = 0.18f;
         }
-        if (jumpAnim.load(prefix + "astronaut_jump.png", 3, 96, 96))
+        if (jumpAnim.load("assets/images/astronaut_jump.png", 3, 96, 96))
         {
             any = true;
             jumpAnim.frameTime = 0.1f;
         }
-        if (fallAnim.load(prefix + "astronaut_fall.png", 2, 96, 96))
+        if (fallAnim.load("assets/images/astronaut_fall.png", 2, 96, 96))
         {
             any = true;
             fallAnim.frameTime = 0.14f;
@@ -142,10 +138,12 @@ struct Player
 
     void update(float deltaTime)
     {
+        // weak gravity and vertical movement
         velocityY += gravity * deltaTime;
         y += velocityY * deltaTime;
 
-        x += 80.f * deltaTime;
+        // gentle auto-move right up to a cap
+        x += 80.f * deltaTime; // auto-move right
         if (x > 340.f)
             x = 340.f;
 
@@ -168,6 +166,7 @@ struct Player
     {
         if (useSprite)
         {
+            // determine state by vertical velocity
             const float thresh = 20.f;
             if (velocityY < -thresh && jumpAnim.loaded)
                 window.draw(jumpAnim.sprite);
@@ -196,16 +195,15 @@ struct Obstacle
     RectangleShape shape;
     float speed = 360.f;
 
-    Obstacle(float startX, float startY, mt19937 &rng)
+    Obstacle(float startX, float startY)
     {
-        uniform_int_distribution<int> sizeDist(0, 47);
-        float width = 64.f + static_cast<float>(sizeDist(rng));
-        float height = width;
+        float width = 64.f + static_cast<float>(rand() % 48);
+        float height = width; // square-ish obstacles
         shape.setSize(Vector2f(width, height));
         shape.setFillColor(Color(220, 80, 80));
         shape.setOutlineColor(Color::White);
         shape.setOutlineThickness(2.f);
-        shape.setPosition(startX, max(48.f, startY - height / 2.f));
+        shape.setPosition(startX, std::max(48.f, startY - height / 2.f));
     }
 
     void update(float deltaTime)
@@ -226,7 +224,7 @@ struct Collectible
         shape.setFillColor(Color(240, 220, 90));
         shape.setOutlineColor(Color::White);
         shape.setOutlineThickness(2.f);
-        shape.setPosition(startX, max(48.f, startY - radius));
+        shape.setPosition(startX, std::max(48.f, startY - radius));
     }
 
     void update(float deltaTime)
@@ -247,7 +245,7 @@ int main()
         loadedAstronaut = astronaut.loadTexture("assets/images/pikachu.png");
         if (!loadedAstronaut)
         {
-            cout << "No se encontró astronaut.png, usando forma simple como reserva.\n";
+            std::cout << "No se encontr� astronaut.png, usando forma simple como reserva.\n";
         }
     }
 
@@ -255,8 +253,10 @@ int main()
     bool loadedFont = font.loadFromFile("assets/fonts/Minecraft.ttf");
     if (!loadedFont)
     {
-        cout << "No se encontró el archivo de fuente: assets/fonts/Minecraft.ttf\n";
+        std::cout << "No se encontr� el archivo de fuente: assets/fonts/Minecraft.ttf\n";
     }
+
+    // removed ground layer per new mechanics
 
     RectangleShape sky(Vector2f(800.f, 520.f));
     sky.setFillColor(Color(6, 18, 45));
@@ -265,10 +265,9 @@ int main()
     mt19937 rng(static_cast<unsigned int>(time(nullptr)));
     uniform_real_distribution<float> starX(0.f, 800.f);
     uniform_real_distribution<float> starY(0.f, 500.f);
-    uniform_real_distribution<float> starRadius(1.f, 3.f);
     for (int i = 0; i < 100; i++)
     {
-        CircleShape star(starRadius(rng));
+        CircleShape star(static_cast<float>(1 + rand() % 3));
         star.setFillColor(Color(200, 220, 255, 200));
         star.setPosition(starX(rng), starY(rng));
         stars.push_back(star);
@@ -279,8 +278,8 @@ int main()
 
     float obstacleTimer = 0.f;
     float collectibleTimer = 0.f;
-    float obstacleInterval = 2.8f;
-    float collectibleInterval = 1.4f;
+    float obstacleInterval = 2.8f; // low spawn rate
+    float collectibleInterval = 1.4f; // generous spawn frequency
     int score = 0;
     int highScore = 0;
     bool gameOver = false;
@@ -292,6 +291,7 @@ int main()
     Text scoreText;
     Text gameOverText;
 
+    // jetpack icon
     Texture jetpackIconTex;
     bool jetpackIconLoaded = jetpackIconTex.loadFromFile("assets/images/jetpack_icon.png");
     Sprite jetpackIconSprite;
@@ -362,17 +362,19 @@ int main()
             obstacleTimer += deltaTime;
             collectibleTimer += deltaTime;
 
+            // spawn obstacles at random heights (not too close to top/bottom)
             if (obstacleTimer >= obstacleInterval)
             {
-                uniform_real_distribution<float> spawnY(80.f, 520.f);
-                obstacles.emplace_back(820.f, spawnY(rng), rng);
+                float spawnY = 80.f + static_cast<float>(rand() % 440);
+                obstacles.emplace_back(820.f, spawnY);
                 obstacleTimer = 0.f;
             }
 
+            // spawn collectibles generously at random heights
             if (collectibleTimer >= collectibleInterval)
             {
-                uniform_real_distribution<float> spawnY(80.f, 520.f);
-                collectibles.emplace_back(820.f, spawnY(rng));
+                float spawnY = 80.f + static_cast<float>(rand() % 440);
+                collectibles.emplace_back(820.f, spawnY);
                 collectibleTimer = 0.f;
             }
 
@@ -382,14 +384,15 @@ int main()
             for (auto &collectible : collectibles)
                 collectible.update(deltaTime);
 
-            obstacles.erase(remove_if(obstacles.begin(), obstacles.end(), [](const Obstacle &obs) {
+            obstacles.erase(std::remove_if(obstacles.begin(), obstacles.end(), [](const Obstacle &obs) {
                 return obs.shape.getPosition().x + obs.shape.getSize().x < -20.f;
             }), obstacles.end());
 
-            collectibles.erase(remove_if(collectibles.begin(), collectibles.end(), [](const Collectible &item) {
+            collectibles.erase(std::remove_if(collectibles.begin(), collectibles.end(), [](const Collectible &item) {
                 return item.shape.getPosition().x + item.shape.getRadius() * 2.f < -20.f;
             }), collectibles.end());
 
+            // forgiving hitbox scale
             auto shrinkBounds = [](const FloatRect &r, float scale) {
                 float nw = r.width * scale;
                 float nh = r.height * scale;
@@ -412,6 +415,7 @@ int main()
             {
                 if (playerBounds.intersects(shrinkBounds(it->shape.getGlobalBounds(), 0.8f)))
                 {
+                    // give one charge and a small score bump
                     astronaut.charges += 1;
                     score += 10;
                     it = collectibles.erase(it);
@@ -422,6 +426,7 @@ int main()
                 }
             }
 
+            // death if touching top or bottom of screen
             if (astronaut.y <= 0.f || astronaut.y + astronaut.height >= 600.f)
             {
                 gameOver = true;
@@ -454,12 +459,14 @@ int main()
 
         astronaut.draw(window);
 
+        // HUD and text
         if (loadedFont)
         {
             window.draw(titleText);
             window.draw(infoText);
             window.draw(scoreText);
 
+            // draw charges top-left: e.g. "4x [icon]"
             string chargeStr = to_string(astronaut.charges) + " x ";
             Text chargesText;
             chargesText.setFont(font);
