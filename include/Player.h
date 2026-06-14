@@ -4,21 +4,22 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
+// Player representa al astronauta jugable y su comportamiento físico.
 struct Player
 {
-    sf::RectangleShape shape;
-    AnimatedSprite idleAnim;
-    AnimatedSprite jumpAnim;
-    AnimatedSprite fallAnim;
-    bool useSprite = false;
-    float x = 150.f;
-    float y = 0.f;
-    float width = 30.f;
-    float height = 91.f;
-    float velocityY = 0.f;
-    float gravity = 400.f; // weak gravity
-    float boostSpeed = -420.f;
-    int charges = 4;
+    sf::RectangleShape shape; // forma usada cuando no hay sprite cargado
+    AnimatedSprite idleAnim; // animación al estar en el suelo
+    AnimatedSprite jumpAnim; // animación al saltar
+    AnimatedSprite fallAnim; // animación al caer
+    bool useSprite = false; // si se usa animación de sprite o forma simple
+    float x = 150.f; // posición horizontal
+    float y = 0.f; // posición vertical
+    float width = 30.f; // ancho del jugador cuando se usa la forma simple
+    float height = 91.f; // alto del jugador en forma simple
+    float velocityY = 0.f; // velocidad vertical actual
+    float gravity = 400.f; // gravedad aplicada cada fotograma
+    float boostSpeed = -420.f; // fuerza de salto
+    int charges = 4; // cargas de salto disponibles
 
     Player()
         : shape(sf::Vector2f(width, height))
@@ -45,6 +46,8 @@ struct Player
         }
     }
 
+    // Intenta cargar texturas para los diferentes estados del jugador.
+    // Devuelve true si se cargó al menos una animación.
     bool loadTexture(const std::string &path)
     {
         bool any = false;
@@ -75,6 +78,7 @@ struct Player
         return useSprite;
     }
 
+    // Ejecuta el salto si hay cargas disponibles.
     void boost()
     {
         if (charges > 0)
@@ -84,6 +88,7 @@ struct Player
         }
     }
 
+    // Actualiza la posición y la animación del jugador.
     void update(float deltaTime)
     {
         velocityY += gravity * deltaTime;

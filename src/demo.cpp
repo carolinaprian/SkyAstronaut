@@ -11,14 +11,20 @@
 #include "Obstacle.h"
 #include "Collectible.h"
 
+// Juego runner simple con astronauta que salta y recoge objetos.
+// El código principal inicializa la ventana, carga los assets, crea
+// los obstáculos y coleccionables, y controla la lógica de juego.
+
 using namespace std;
 using namespace sf;
 
 int main()
 {
+    // Crear la ventana del juego con tamaño fijo y nombre del título.
     RenderWindow window(VideoMode(800, 600), "Sky Astronaut Runner");
     window.setFramerateLimit(60);
 
+    // Crear el jugador y preparar sus animaciones o forma simple.
     Player astronaut;
     bool loadedAstronaut = astronaut.loadTexture("assets/images/astronaut.png");
     if (!loadedAstronaut)
@@ -37,8 +43,7 @@ int main()
         std::cout << "No se encontr� el archivo de fuente: assets/fonts/Minecraft.ttf\n";
     }
 
-    // removed ground layer per new mechanics
-
+    // Fondo del cielo y estrellas que se dibujan detrás de los objetos del juego.
     RectangleShape sky(Vector2f(800.f, 520.f));
     sky.setFillColor(Color(6, 18, 45));
 
@@ -54,6 +59,7 @@ int main()
         stars.push_back(star);
     }
 
+    // Listas de obstáculos y coleccionables que aparecerán durante el juego.
     vector<Obstacle> obstacles;
     vector<Collectible> collectibles;
 
@@ -107,6 +113,7 @@ int main()
         gameOverText.setString("GAME OVER\nPresiona R para reiniciar");
     }
 
+    // Bucle principal de juego: procesa eventos, actualiza el estado y dibuja todo.
     while (window.isOpen())
     {
         float deltaTime = deltaClock.restart().asSeconds();

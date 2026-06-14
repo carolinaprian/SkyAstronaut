@@ -3,10 +3,11 @@
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 
+// Collectible representa un objeto que el jugador puede recoger para puntaje extra.
 struct Collectible
 {
-    sf::CircleShape shape;
-    float speed = 360.f;
+    sf::CircleShape shape; // forma del coleccionable
+    float speed = 360.f; // velocidad de desplazamiento hacia la izquierda
 
     Collectible(float startX, float startY)
     {

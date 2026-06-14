@@ -4,10 +4,11 @@
 #include <algorithm>
 #include <cstdlib>
 
+// Obstacle representa un obstáculo móvil que el jugador debe evitar.
 struct Obstacle
 {
-    sf::RectangleShape shape;
-    float speed = 360.f;
+    sf::RectangleShape shape; // forma del obstáculo
+    float speed = 360.f; // velocidad de desplazamiento hacia la izquierda
 
     Obstacle(float startX, float startY)
     {
