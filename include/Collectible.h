@@ -9,6 +9,8 @@ struct Collectible
     sf::CircleShape shape; // forma del coleccionable
     float speed = 360.f; // velocidad de desplazamiento hacia la izquierda
 
+    // Crea un objeto coleccionable con radio fijo y lo coloca en la altura deseada.
+    // startX es la coordenada horizontal de aparición; startY es la altura aproximada.
     Collectible(float startX, float startY)
     {
         float radius = 20.f;
@@ -19,6 +21,7 @@ struct Collectible
         shape.setPosition(startX, std::max(48.f, startY - radius));
     }
 
+    // Desplaza el coleccionable hacia la izquierda cada fotograma.
     void update(float deltaTime)
     {
         shape.move(-speed * deltaTime, 0.f);

@@ -11,9 +11,10 @@
 #include "Obstacle.h"
 #include "Collectible.h"
 
-// Juego runner simple con astronauta que salta y recoge objetos.
-// El código principal inicializa la ventana, carga los assets, crea
-// los obstáculos y coleccionables, y controla la lógica de juego.
+// Juego runner donde el astronauta corre automáticamente,
+// salta para evitar obstáculos y recoge objetos dorados para sumar puntos.
+// El programa inicializa la ventana, carga las texturas y la fuente,
+// genera el fondo estelar, crea los objetos del juego y ejecuta el bucle principal.
 
 using namespace std;
 using namespace sf;
@@ -43,7 +44,8 @@ int main()
         std::cout << "No se encontr� el archivo de fuente: assets/fonts/Minecraft.ttf\n";
     }
 
-    // Fondo del cielo y estrellas que se dibujan detrás de los objetos del juego.
+    // Fondo principal del juego: un rectángulo oscuro que simula el cielo.
+    // Se dibujan estrellas sobre este fondo antes de los obstáculos y el jugador.
     RectangleShape sky(Vector2f(800.f, 520.f));
     sky.setFillColor(Color(6, 18, 45));
 
@@ -59,14 +61,14 @@ int main()
         stars.push_back(star);
     }
 
-    // Listas de obstáculos y coleccionables que aparecerán durante el juego.
+    // Almacenan los objetos en pantalla: obstáculos que matan y coleccionables que suman puntos.
     vector<Obstacle> obstacles;
     vector<Collectible> collectibles;
 
     float obstacleTimer = 0.f;
     float collectibleTimer = 0.f;
-    float obstacleInterval = 2.8f; // low spawn rate
-    float collectibleInterval = 1.4f; // generous spawn frequency
+    float obstacleInterval = 2.8f; // intervalo entre apariciones de obstáculos
+    float collectibleInterval = 1.4f; // intervalo entre apariciones de coleccionables
     int score = 0;
     int highScore = 0;
     bool gameOver = false;
@@ -113,23 +115,28 @@ int main()
         gameOverText.setString("GAME OVER\nPresiona R para reiniciar");
     }
 
-    // Bucle principal de juego: procesa eventos, actualiza el estado y dibuja todo.
+    // Bucle principal del juego.
+    // En cada iteración procesa entradas del jugador, actualiza la lógica y renderiza la escena.
     while (window.isOpen())
     {
         float deltaTime = deltaClock.restart().asSeconds();
         Event event;
         while (window.pollEvent(event))
         {
+            // Cerrar la ventana si el jugador pulsa la X o el evento de cierre se activa.
             if (event.type == Event::Closed)
                 window.close();
 
+            // Procesar las teclas dentro del juego.
             if (event.type == Event::KeyPressed)
             {
+                // Espacio provoca el salto si el juego no terminó.
                 if (event.key.code == Keyboard::Space && !gameOver)
                 {
                     astronaut.boost();
                 }
 
+                // R reinicia el juego después de perder.
                 if (event.key.code == Keyboard::R && gameOver)
                 {
                     gameOver = false;
@@ -145,12 +152,15 @@ int main()
 
         if (!gameOver)
         {
+            // Actualiza la posición del jugador y su animación según el tiempo transcurrido.
             astronaut.update(deltaTime);
 
+            // Sumar tiempo para decidir cuándo generar nuevos objetos.
             obstacleTimer += deltaTime;
             collectibleTimer += deltaTime;
 
-            // spawn obstacles at random heights (not too close to top/bottom)
+            // Genera obstáculos de forma periódica con una altura aleatoria.
+            // El rango evita que aparezcan demasiado cerca del techo o del suelo.
             if (obstacleTimer >= obstacleInterval)
             {
                 float spawnY = 80.f + static_cast<float>(rand() % 440);
@@ -158,7 +168,7 @@ int main()
                 obstacleTimer = 0.f;
             }
 
-            // spawn collectibles generously at random heights
+            // Genera coleccionables con mayor frecuencia; son premios que el jugador puede recoger.
             if (collectibleTimer >= collectibleInterval)
             {
                 float spawnY = 80.f + static_cast<float>(rand() % 440);
@@ -166,12 +176,14 @@ int main()
                 collectibleTimer = 0.f;
             }
 
+            // Mueve cada obstáculo y coleccionable hacia la izquierda.
             for (auto &obstacle : obstacles)
                 obstacle.update(deltaTime);
 
             for (auto &collectible : collectibles)
                 collectible.update(deltaTime);
 
+            // Elimina objetos que ya salieron completamente de la parte izquierda de la pantalla.
             obstacles.erase(std::remove_if(obstacles.begin(), obstacles.end(), [](const Obstacle &obs) {
                 return obs.shape.getPosition().x + obs.shape.getSize().x < -20.f;
             }), obstacles.end());
@@ -180,7 +192,8 @@ int main()
                 return item.shape.getPosition().x + item.shape.getRadius() * 2.f < -20.f;
             }), collectibles.end());
 
-            // forgiving hitbox scale
+            // Ajusta las cajas de colisión para que sean un poco más pequeñas.
+            // Esto crea un margen de tolerancia y evita colisiones demasiado estrictas.
             auto shrinkBounds = [](const FloatRect &r, float scale) {
                 float nw = r.width * scale;
                 float nh = r.height * scale;
@@ -189,6 +202,7 @@ int main()
 
             FloatRect playerBounds = shrinkBounds(astronaut.getBounds(), 0.8f);
 
+            // Comprueba colisiones con cada obstáculo; si hay impacto, termina el juego.
             for (const auto &obstacle : obstacles)
             {
                 if (playerBounds.intersects(shrinkBounds(obstacle.shape.getGlobalBounds(), 0.8f)))
@@ -199,11 +213,12 @@ int main()
                 }
             }
 
+            // Recoge los coleccionables que el jugador toca y suma puntos.
+            // Cada coleccionable también otorga una carga de salto adicional.
             for (auto it = collectibles.begin(); it != collectibles.end();)
             {
                 if (playerBounds.intersects(shrinkBounds(it->shape.getGlobalBounds(), 0.8f)))
                 {
-                    // give one charge and a small score bump
                     astronaut.charges += 1;
                     score += 10;
                     it = collectibles.erase(it);
@@ -214,7 +229,7 @@ int main()
                 }
             }
 
-            // death if touching top or bottom of screen
+            // Si el jugador sale por la parte superior o inferior de la pantalla, pierde.
             if (astronaut.y <= 0.f || astronaut.y + astronaut.height >= 600.f)
             {
                 gameOver = true;

@@ -10,6 +10,8 @@ struct Obstacle
     sf::RectangleShape shape; // forma del obstáculo
     float speed = 360.f; // velocidad de desplazamiento hacia la izquierda
 
+    // Crea un obstáculo con tamaño aleatorio y lo sitúa en la posición inicial.
+    // startX es la coordenada de aparición horizontal; startY es la altura aproximada.
     Obstacle(float startX, float startY)
     {
         float width = 64.f + static_cast<float>(std::rand() % 48);
@@ -21,6 +23,7 @@ struct Obstacle
         shape.setPosition(startX, std::max(48.f, startY - height / 2.f));
     }
 
+    // Desplaza el obstáculo hacia la izquierda según su velocidad y el tiempo.
     void update(float deltaTime)
     {
         shape.move(-speed * deltaTime, 0.f);
