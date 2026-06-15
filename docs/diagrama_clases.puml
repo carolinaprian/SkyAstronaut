@@ -1,56 +1,86 @@
 @startuml
+"""
+Diagrama de clases generado a partir de los headers en include/
+Clases: AnimatedSprite, Collectible, Obstacle, Player
+"""
+
+' Representación de tipos externos (SFML)
+class "sf::Texture" <<SFML>>
+class "sf::Sprite" <<SFML>>
+class "sf::Clock" <<SFML>>
+class "sf::RectangleShape" <<SFML>>
+class "sf::CircleShape" <<SFML>>
+class "sf::RenderWindow" <<SFML>>
+class "sf::FloatRect" <<SFML>>
 
 class AnimatedSprite {
-    +texture: sf::Texture
-    +sprite: sf::Sprite
-    +loaded: bool
-    +frameWidth: int
-    +frameHeight: int
-    +numFrames: int
-    +currentFrame: int
-    +frameTime: float
-    +frameClock: sf::Clock
-    +load(filePath: const std::string&, frames: int = 1, width: int = 0, height: int = 0): bool
-    +update(): void
+  +texture: sf::Texture
+  +sprite: sf::Sprite
+  +loaded: bool
+  +frameWidth: int
+  +frameHeight: int
+  +numFrames: int
+  +currentFrame: int
+  +frameTime: float
+  +frameClock: sf::Clock
+
+  +load(filePath: std::string, frames: int, width: int, height: int): bool
+  +update(): void
 }
 
 class Collectible {
-    +shape: sf::CircleShape
-    +speed: float
-    +Collectible(startX: float, startY: float, texture: const sf::Texture* = nullptr)
-    +update(deltaTime: float): void
+  +shape: sf::CircleShape
+  +speed: float
+
+  +Collectible(startX: float, startY: float, texture: const sf::Texture*):
+  +update(deltaTime: float): void
 }
 
 class Obstacle {
-    +shape: sf::RectangleShape
-    +speed: float
-    +Obstacle(startX: float, startY: float, texture: const sf::Texture* = nullptr)
-    +update(deltaTime: float): void
+  +shape: sf::RectangleShape
+  +speed: float
+
+  +Obstacle(startX: float, startY: float, texture: const sf::Texture*):
+  +update(deltaTime: float): void
 }
 
 class Player {
-    +shape: sf::RectangleShape
-    +idleAnim: AnimatedSprite
-    +jumpAnim: AnimatedSprite
-    +fallAnim: AnimatedSprite
-    +useSprite: bool
-    +x: float
-    +y: float
-    +width: float
-    +height: float
-    +velocityY: float
-    +gravity: float
-    +boostSpeed: float
-    +charges: int
-    +Player()
-    +reset(): void
-    +loadTexture(path: const std::string&): bool
-    +boost(): void
-    +update(deltaTime: float): void
-    +draw(window: sf::RenderWindow&): void
-    +getBounds(): sf::FloatRect
+  +shape: sf::RectangleShape
+  +idleAnim: AnimatedSprite
+  +jumpAnim: AnimatedSprite
+  +fallAnim: AnimatedSprite
+  +useSprite: bool
+  +x: float
+  +y: float
+  +width: float
+  +height: float
+  +velocityY: float
+  +gravity: float
+  +boostSpeed: float
+  +charges: int
+
+  +Player()
+  +reset(): void
+  +loadTexture(path: const std::string&): bool
+  +boost(): void
+  +update(deltaTime: float): void
+  +draw(window: sf::RenderWindow&): void
+  +getBounds(): sf::FloatRect
 }
 
-Player *-- AnimatedSprite : "3"
+' Relaciones (multiplicidades incluidas)
+' Player posee 3 AnimatedSprite (composición)
+Player "1" *-- "3" AnimatedSprite
+
+' AnimatedSprite compone de sf::Texture, sf::Sprite y sf::Clock
+AnimatedSprite "1" *-- "1" "sf::Texture"
+AnimatedSprite "1" *-- "1" "sf::Sprite"
+AnimatedSprite "1" *-- "1" "sf::Clock"
+
+' Collectible compone de sf::CircleShape
+Collectible "1" *-- "1" "sf::CircleShape"
+
+' Obstacle compone de sf::RectangleShape
+Obstacle "1" *-- "1" "sf::RectangleShape"
 
 @enduml
