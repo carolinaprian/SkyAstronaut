@@ -49,7 +49,7 @@ struct Player
     }
 
     // Intenta cargar animaciones para el jugador desde archivos específicos.
-    // Retorna true si se cargó al menos una animación útil.
+    // Si no hay animaciones completas, usa la ruta de imagen principal como fallback.
     bool loadTexture(const std::string &path)
     {
         bool any = false;
@@ -67,6 +67,26 @@ struct Player
         {
             any = true;
             fallAnim.frameTime = 0.14f;
+        }
+
+        if (!any && !path.empty())
+        {
+            // Usa una imagen estática del astronauta si no hay hojas de animación.
+            if (idleAnim.load(path))
+            {
+                any = true;
+                idleAnim.frameTime = 0.18f;
+            }
+        }
+
+        if (!any)
+        {
+            // Fallback adicional opcional, si el sprite principal no está disponible.
+            if (idleAnim.load("assets/images/pikachu.png"))
+            {
+                any = true;
+                idleAnim.frameTime = 0.18f;
+            }
         }
 
         useSprite = any;

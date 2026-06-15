@@ -11,10 +11,13 @@ struct Collectible
 
     // Crea un objeto coleccionable con radio fijo y lo coloca en la altura deseada.
     // startX es la coordenada horizontal de aparición; startY es la altura aproximada.
-    Collectible(float startX, float startY)
+    // Si se proporciona una textura, la aplica al coleccionable.
+    Collectible(float startX, float startY, const sf::Texture *texture = nullptr)
     {
         float radius = 20.f;
         shape.setRadius(radius);
+        if (texture)
+            shape.setTexture(texture);
         shape.setFillColor(sf::Color(240, 220, 90));
         shape.setOutlineColor(sf::Color::White);
         shape.setOutlineThickness(2.f);

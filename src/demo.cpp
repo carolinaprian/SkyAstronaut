@@ -80,7 +80,7 @@ int main()
     Text scoreText;
     Text gameOverText;
 
-    // jetpack icon
+    // Texturas de assets usados en el HUD y en los objetos del juego.
     Texture jetpackIconTex;
     bool jetpackIconLoaded = jetpackIconTex.loadFromFile("assets/images/jetpack_icon.png");
     Sprite jetpackIconSprite;
@@ -89,6 +89,12 @@ int main()
         jetpackIconSprite.setTexture(jetpackIconTex);
         jetpackIconSprite.setScale(100.f / jetpackIconTex.getSize().x, 100.f / jetpackIconTex.getSize().y);
     }
+
+    Texture collectibleTexture;
+    bool collectibleTextureLoaded = collectibleTexture.loadFromFile("assets/images/jetpack_collectible.png");
+
+    Texture obstacleTexture;
+    bool obstacleTextureLoaded = obstacleTexture.loadFromFile("assets/images/planet_obstacule.png");
 
     if (loadedFont)
     {
@@ -164,7 +170,7 @@ int main()
             if (obstacleTimer >= obstacleInterval)
             {
                 float spawnY = 80.f + static_cast<float>(rand() % 440);
-                obstacles.emplace_back(820.f, spawnY);
+                obstacles.emplace_back(820.f, spawnY, obstacleTextureLoaded ? &obstacleTexture : nullptr);
                 obstacleTimer = 0.f;
             }
 
@@ -172,7 +178,7 @@ int main()
             if (collectibleTimer >= collectibleInterval)
             {
                 float spawnY = 80.f + static_cast<float>(rand() % 440);
-                collectibles.emplace_back(820.f, spawnY);
+                collectibles.emplace_back(820.f, spawnY, collectibleTextureLoaded ? &collectibleTexture : nullptr);
                 collectibleTimer = 0.f;
             }
 
