@@ -1,0 +1,56 @@
+@startuml
+
+class AnimatedSprite {
+    +texture: sf::Texture
+    +sprite: sf::Sprite
+    +loaded: bool
+    +frameWidth: int
+    +frameHeight: int
+    +numFrames: int
+    +currentFrame: int
+    +frameTime: float
+    +frameClock: sf::Clock
+    +load(filePath: const std::string&, frames: int = 1, width: int = 0, height: int = 0): bool
+    +update(): void
+}
+
+class Collectible {
+    +shape: sf::CircleShape
+    +speed: float
+    +Collectible(startX: float, startY: float, texture: const sf::Texture* = nullptr)
+    +update(deltaTime: float): void
+}
+
+class Obstacle {
+    +shape: sf::RectangleShape
+    +speed: float
+    +Obstacle(startX: float, startY: float, texture: const sf::Texture* = nullptr)
+    +update(deltaTime: float): void
+}
+
+class Player {
+    +shape: sf::RectangleShape
+    +idleAnim: AnimatedSprite
+    +jumpAnim: AnimatedSprite
+    +fallAnim: AnimatedSprite
+    +useSprite: bool
+    +x: float
+    +y: float
+    +width: float
+    +height: float
+    +velocityY: float
+    +gravity: float
+    +boostSpeed: float
+    +charges: int
+    +Player()
+    +reset(): void
+    +loadTexture(path: const std::string&): bool
+    +boost(): void
+    +update(deltaTime: float): void
+    +draw(window: sf::RenderWindow&): void
+    +getBounds(): sf::FloatRect
+}
+
+Player *-- AnimatedSprite : "3"
+
+@enduml
