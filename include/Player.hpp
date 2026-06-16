@@ -1,38 +1,38 @@
 #pragma once
 
-#include "AnimatedSprite.h"
+#include "AnimatedSprite.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
 
-// Player representa al astronauta jugable, sus animaciones y su física vertical.
-// También maneja el reinicio del estado y el control de cargas de salto.
+using namespace std;
+using namespace sf;
+
 struct Player
 {
-    sf::RectangleShape shape; // forma de respaldo si no se encuentra el sprite del astronauta
-    AnimatedSprite idleAnim; // animación cuando el jugador está en tierra o sin moverse verticalmente
-    AnimatedSprite jumpAnim; // animación usada mientras el jugador sube en el salto
-    AnimatedSprite fallAnim; // animación usada cuando el jugador está cayendo
-    bool useSprite = false; // determina si se debe dibujar la animación o la forma simple
-    float x = 150.f; // coordenada horizontal del jugador
-    float y = 0.f; // coordenada vertical del jugador
-    float width = 30.f; // ancho del rectángulo de respaldo del jugador
-    float height = 91.f; // alto del rectángulo de respaldo del jugador
-    float velocityY = 0.f; // velocidad vertical actual del jugador
-    float gravity = 400.f; // aceleración hacia abajo aplicada cada segundo
-    float boostSpeed = -420.f; // velocidad inicial del salto (valor negativo hacia arriba)
-    int charges = 4; // número de saltos disponibles antes de recargar
+    RectangleShape shape;
+    AnimatedSprite idleAnim;
+    AnimatedSprite jumpAnim;
+    AnimatedSprite fallAnim;
+    bool useSprite = false;
+    float x = 150.f;
+    float y = 0.f;
+    float width = 64.f; // tamaño reducido del astronauta a 64x64px
+    float height = 64.f;
+    float velocityY = 0.f;
+    float gravity = 400.f;
+    float boostSpeed = -252.f; // fuerza de salto reducida 40%: antes -420, ahora -252
+    int charges = 4;
 
     Player()
-        : shape(sf::Vector2f(width, height))
+        : shape(Vector2f(width, height))
     {
-        shape.setFillColor(sf::Color(200, 230, 255));
-        shape.setOutlineColor(sf::Color::White);
+        shape.setFillColor(Color(200, 230, 255));
+        shape.setOutlineColor(Color::White);
         shape.setOutlineThickness(2.f);
         y = 240.f;
         shape.setPosition(x, y);
     }
 
-    // Restablece al jugador a su posición inicial, velocidad cero y carga de saltos completa.
     void reset()
     {
         x = 150.f;
@@ -48,44 +48,66 @@ struct Player
         }
     }
 
-    // Intenta cargar animaciones para el jugador desde archivos específicos.
-    // Si no hay animaciones completas, usa la ruta de imagen principal como fallback.
-    bool loadTexture(const std::string &path)
+    bool loadTexture(const string &path)
     {
         bool any = false;
+        const float displaySize = 64.f;
+        auto applyScale = [&](AnimatedSprite &anim)
+        {
+            float texW = anim.frameWidth > 0 ? static_cast<float>(anim.frameWidth) : static_cast<float>(anim.texture.getSize().x);
+            float texH = anim.frameHeight > 0 ? static_cast<float>(anim.frameHeight) : static_cast<float>(anim.texture.getSize().y);
+            if (texW > 0.f && texH > 0.f)
+                anim.sprite.setScale(displaySize / texW, displaySize / texH);
+        };
+
+        // Sprite sheets horizontales con ancho uniforme por frame.
+        // Idle: 2 frames de 96px cada uno.
         if (idleAnim.load("assets/images/astronaut_idle.png", 2, 96, 96))
         {
             any = true;
             idleAnim.frameTime = 0.18f;
+            applyScale(idleAnim);
         }
+        else if (idleAnim.load("assets/images/astronaut_idle 2 frame.png", 2, 96, 96))
+        {
+            any = true;
+            idleAnim.frameTime = 0.18f;
+            applyScale(idleAnim);
+        }
+
+        // Jump: 3 frames de 96px cada uno.
         if (jumpAnim.load("assets/images/astronaut_jump.png", 3, 96, 96))
         {
             any = true;
             jumpAnim.frameTime = 0.1f;
+            applyScale(jumpAnim);
         }
+
+        // Fall: 2 frames de 96px cada uno.
         if (fallAnim.load("assets/images/astronaut_fall.png", 2, 96, 96))
         {
             any = true;
             fallAnim.frameTime = 0.14f;
+            applyScale(fallAnim);
         }
 
         if (!any && !path.empty())
         {
-            // Usa una imagen estática del astronauta si no hay hojas de animación.
             if (idleAnim.load(path))
             {
                 any = true;
                 idleAnim.frameTime = 0.18f;
+                applyScale(idleAnim);
             }
         }
 
         if (!any)
         {
-            // Fallback adicional opcional, si el sprite principal no está disponible.
             if (idleAnim.load("assets/images/pikachu.png"))
             {
                 any = true;
                 idleAnim.frameTime = 0.18f;
+                applyScale(idleAnim);
             }
         }
 
@@ -100,9 +122,6 @@ struct Player
         return useSprite;
     }
 
-    // Ejecuta el salto si hay cargas disponibles.
-    // Ejecuta un impulso de salto si quedan cargas.
-    // Este método reduce una carga y modifica la velocidad vertical.
     void boost()
     {
         if (charges > 0)
@@ -112,14 +131,12 @@ struct Player
         }
     }
 
-    // Calcula la nueva posición vertical y horizontal del jugador,
-    // aplica la gravedad y actualiza la animación activa según la velocidad.
     void update(float deltaTime)
     {
         velocityY += gravity * deltaTime;
         y += velocityY * deltaTime;
 
-        x += 80.f * deltaTime; // auto-move right
+        x += 80.f * deltaTime;
         if (x > 340.f)
             x = 340.f;
 
@@ -138,9 +155,7 @@ struct Player
         }
     }
 
-    // Dibuja al jugador en la ventana, seleccionando el sprite de salto,
-    // caída o estado quieto según su velocidad vertical actual.
-    void draw(sf::RenderWindow &window)
+    void draw(RenderWindow &window)
     {
         if (useSprite)
         {
@@ -158,9 +173,7 @@ struct Player
         }
     }
 
-    // Devuelve el rectángulo de colisión actual del jugador,
-    // usando el sprite activo si está disponible o la forma simple.
-    sf::FloatRect getBounds() const
+    FloatRect getBounds() const
     {
         if (useSprite)
             return idleAnim.sprite.getGlobalBounds();

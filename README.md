@@ -18,10 +18,10 @@ El objetivo es sobrevivir el mayor tiempo posible evitando obstáculos y acumula
 ## 📁 Estructura del proyecto
 
 - `src/demo.cpp` — código principal del juego y bucle de ejecución.
-- `include/AnimatedSprite.h` — animación de sprites por frames.
-- `include/Player.h` — lógica del jugador, salto y dibujado.
-- `include/Obstacle.h` — definición de obstáculos y su movimiento.
-- `include/Collectible.h` — definición de objetos coleccionables.
+- `include/AnimatedSprite.hpp` — animación de sprites por frames.
+- `include/Player.hpp` — lógica del jugador, salto y dibujado.
+- `include/Obstacle.hpp` — definición de obstáculos y su movimiento.
+- `include/Collectible.hpp` — definición de objetos coleccionables.
 - `makefile` — reglas de compilación con SFML e inclusión de `include/`.
 - `assets/images/` — sprites e imágenes usadas por el juego.
 - `assets/fonts/` — fuente para HUD y mensajes.
