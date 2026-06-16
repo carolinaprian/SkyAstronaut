@@ -331,10 +331,7 @@ int main()
             continue;
         }
 
-        if (coverTextureLoaded)
-            window.draw(coverSprite);
-        else
-            window.draw(sky);
+        window.draw(sky);
 
         for (const auto &star : stars)
             window.draw(star);
