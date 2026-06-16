@@ -96,7 +96,7 @@ int main()
     float obstacleTimer = 0.f;
     float collectibleTimer = 0.f;
     float obstacleInterval = 2.8f; // intervalo entre apariciones de obstáculos
-    float collectibleInterval = 1.4f; // intervalo entre apariciones de coleccionables
+    float collectibleInterval = 0.9f; // intervalo entre apariciones de coleccionables (aumentado)
     int score = 0;
     int highScore = 0;
     bool gameOver = false;
@@ -118,7 +118,7 @@ int main()
     if (jetpackIconLoaded)
     {
         jetpackIconSprite.setTexture(jetpackIconTex);
-        jetpackIconSprite.setScale(100.f / jetpackIconTex.getSize().x, 100.f / jetpackIconTex.getSize().y);
+        jetpackIconSprite.setScale(45.f / jetpackIconTex.getSize().x, 45.f / jetpackIconTex.getSize().y);
     }
 
     Texture collectibleTexture;
@@ -227,10 +227,28 @@ int main()
             }
 
             // Genera coleccionables con mayor frecuencia; son premios que el jugador puede recoger.
+            // Valida que no se superpongan con obstáculos existentes.
             if (collectibleTimer >= collectibleInterval)
             {
                 float spawnY = 80.f + static_cast<float>(rand() % 440);
-                collectibles.emplace_back(820.f, spawnY, collectibleTextureLoaded ? &collectibleTexture : nullptr);
+                Collectible newCollectible(820.f, spawnY, collectibleTextureLoaded ? &collectibleTexture : nullptr);
+                FloatRect colBounds = newCollectible.shape.getGlobalBounds();
+                
+                // Verifica si hay colisión con algún obstáculo existente.
+                bool canSpawn = true;
+                for (const auto &obs : obstacles)
+                {
+                    if (colBounds.intersects(obs.shape.getGlobalBounds()))
+                    {
+                        canSpawn = false;
+                        break;
+                    }
+                }
+                
+                if (canSpawn)
+                {
+                    collectibles.push_back(newCollectible);
+                }
                 collectibleTimer = 0.f;
             }
 
