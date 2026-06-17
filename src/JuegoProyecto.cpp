@@ -1,4 +1,4 @@
-Ôªø#include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <filesystem>
 #include <vector>
 #include <random>
@@ -12,8 +12,8 @@
 #include "Obstacle.hpp"
 #include "Collectible.hpp"
 
-// Juego runner donde el astronauta corre autom√°ticamente,
-// salta para evitar obst√°culos y recoge objetos dorados para sumar puntos.
+// Juego runner donde el astronauta corre autom·ticamente,
+// salta para evitar obst·culos y recoge objetos dorados para sumar puntos.
 // El programa inicializa la ventana, carga las texturas y la fuente,
 // genera el fondo estelar, crea los objetos del juego y ejecuta el bucle principal.
 
@@ -56,7 +56,7 @@ static fs::path locateProjectRoot(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    // Crear la ventana del juego con tama√±o fijo y nombre del t√≠tulo.
+    // Crear la ventana del juego con tamaÒo fijo y nombre del tÌtulo.
     RenderWindow window(VideoMode(800, 600), "Sky Astronaut Runner");
     window.setFramerateLimit(60);
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
         loadedAstronaut = astronaut.loadTexture(assetsRoot);
         if (!loadedAstronaut)
         {
-            std::cout << "No se encontr√≥ astronaut.png, usando forma simple como reserva.\n";
+            std::cout << "No se encontrÛ astronaut.png, usando forma simple como reserva.\n";
         }
     }
 
@@ -79,11 +79,11 @@ int main(int argc, char *argv[])
     bool loadedFont = font.loadFromFile((assetsRoot / "fonts" / "Minecraft.ttf").string());
     if (!loadedFont)
     {
-        std::cout << "No se encontr√≥ el archivo de fuente: " << (assetsRoot / "fonts" / "Minecraft.ttf").string() << "\n";
+        std::cout << "No se encontrÛ el archivo de fuente: " << (assetsRoot / "fonts" / "Minecraft.ttf").string() << "\n";
     }
 
-    // Fondo principal del juego: un rect√°ngulo oscuro que simula el cielo.
-    // Se dibujan estrellas sobre este fondo antes de los obst√°culos y el jugador.
+    // Fondo principal del juego: un rect·ngulo oscuro que simula el cielo.
+    // Se dibujan estrellas sobre este fondo antes de los obst·culos y el jugador.
     Texture coverTexture;
     bool coverTextureLoaded = coverTexture.loadFromFile((assetsRoot / "images" / "cover.png").string());
     Sprite coverSprite;
@@ -120,13 +120,13 @@ int main(int argc, char *argv[])
         stars.push_back(star);
     }
 
-    // Almacenan los objetos en pantalla: obst√°culos que matan y coleccionables que suman puntos.
+    // Almacenan los objetos en pantalla: obst·culos que matan y coleccionables que suman puntos.
     vector<Obstacle> obstacles;
     vector<Collectible> collectibles;
 
     float obstacleTimer = 0.f;
     float collectibleTimer = 0.f;
-    float obstacleInterval = 2.8f; // intervalo entre apariciones de obst√°culos
+    float obstacleInterval = 2.8f; // intervalo entre apariciones de obst·culos
     float collectibleInterval = 0.9f; // intervalo entre apariciones de coleccionables (aumentado)
     int score = 0;
     int highScore = 0;
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
     }
 
     // Bucle principal del juego.
-    // En cada iteraci√≥n procesa entradas del jugador, actualiza la l√≥gica y renderiza la escena.
+    // En cada iteraciÛn procesa entradas del jugador, actualiza la lÛgica y renderiza la escena.
     while (window.isOpen())
     {
         float deltaTime = deltaClock.restart().asSeconds();
@@ -218,13 +218,13 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                // Espacio provoca el salto si el juego ya empez√≥ y no termin√≥.
+                // Espacio provoca el salto si el juego ya empezÛ y no terminÛ.
                 if (event.key.code == Keyboard::Space && gameState == GameState::PLAYING && !gameOver)
                 {
                     astronaut.boost();
                 }
 
-                // R reinicia el juego despu√©s de perder.
+                // R reinicia el juego despuÈs de perder.
                 if (event.key.code == Keyboard::R && gameState == GameState::GAMEOVER)
                 {
                     gameOver = false;
@@ -241,14 +241,14 @@ int main(int argc, char *argv[])
 
         if (gameState == GameState::PLAYING && !gameOver)
         {
-            // Actualiza la posici√≥n del jugador y su animaci√≥n seg√∫n el tiempo transcurrido.
+            // Actualiza la posiciÛn del jugador y su animaciÛn seg˙n el tiempo transcurrido.
             astronaut.update(deltaTime);
 
-            // Sumar tiempo para decidir cu√°ndo generar nuevos objetos.
+            // Sumar tiempo para decidir cu·ndo generar nuevos objetos.
             obstacleTimer += deltaTime;
             collectibleTimer += deltaTime;
 
-            // Genera obst√°culos de forma peri√≥dica con una altura aleatoria.
+            // Genera obst·culos de forma periÛdica con una altura aleatoria.
             // El rango evita que aparezcan demasiado cerca del techo o del suelo.
             if (obstacleTimer >= obstacleInterval)
             {
@@ -258,14 +258,14 @@ int main(int argc, char *argv[])
             }
 
             // Genera coleccionables con mayor frecuencia; son premios que el jugador puede recoger.
-            // Valida que no se superpongan con obst√°culos existentes.
+            // Valida que no se superpongan con obst·culos existentes.
             if (collectibleTimer >= collectibleInterval)
             {
                 float spawnY = 80.f + static_cast<float>(rand() % 440);
                 Collectible newCollectible(820.f, spawnY, collectibleTextureLoaded ? &collectibleTexture : nullptr);
                 FloatRect colBounds = newCollectible.shape.getGlobalBounds();
                 
-                // Verifica si hay colisi√≥n con alg√∫n obst√°culo existente.
+                // Verifica si hay colisiÛn con alg˙n obst·culo existente.
                 bool canSpawn = true;
                 for (const auto &obs : obstacles)
                 {
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
                 collectibleTimer = 0.f;
             }
 
-            // Mueve cada obst√°culo y coleccionable hacia la izquierda.
+            // Mueve cada obst·culo y coleccionable hacia la izquierda.
             for (auto &obstacle : obstacles)
                 obstacle.update(deltaTime);
 
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
                 return item.shape.getPosition().x + item.shape.getRadius() * 2.f < -20.f;
             }), collectibles.end());
 
-            // Ajusta las cajas de colisi√≥n para que sean un poco m√°s peque√±as.
+            // Ajusta las cajas de colisiÛn para que sean un poco m·s pequeÒas.
             // Esto crea un margen de tolerancia y evita colisiones demasiado estrictas.
             auto shrinkBounds = [](const FloatRect &r, float scale) {
                 float nw = r.width * scale;
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 
             FloatRect playerBounds = shrinkBounds(astronaut.getBounds(), 0.8f);
 
-            // Comprueba colisiones con cada obst√°culo; si hay impacto, termina el juego.
+            // Comprueba colisiones con cada obst·culo; si hay impacto, termina el juego.
             for (const auto &obstacle : obstacles)
             {
                 if (playerBounds.intersects(shrinkBounds(obstacle.shape.getGlobalBounds(), 0.8f)))
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
             }
 
             // Recoge los coleccionables que el jugador toca y suma puntos.
-            // Cada coleccionable tambi√©n otorga una carga de salto adicional.
+            // Cada coleccionable tambiÈn otorga una carga de salto adicional.
             for (auto it = collectibles.begin(); it != collectibles.end();)
             {
                 if (playerBounds.intersects(shrinkBounds(it->shape.getGlobalBounds(), 0.8f)))

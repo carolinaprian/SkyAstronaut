@@ -29,7 +29,7 @@ El juego incluye:
 
 ## 📁 Estructura del proyecto
 
-- `src/demo.cpp` — lógica principal, bucle de juego, generación de obstáculos y coleccionables.
+- `src/JuegoProyecto.cpp` — lógica principal, bucle de juego, generación de obstáculos y coleccionables.
 - `include/Player.hpp` — lógica de movimiento, gravedad, saltos, animación y colisiones del jugador.
 - `include/AnimatedSprite.hpp` — gestión simple de sprites animados por frames.
 - `include/Obstacle.hpp` — definición de obstáculos móviles.
@@ -56,18 +56,18 @@ Desde la carpeta raíz del proyecto:
 make all
 ```
 
-Esto compila `src/demo.cpp` y genera `bin/demo.exe`.
+Esto compila `src/JuegoProyecto.cpp` y genera `bin/JuegoProyecto.exe`.
 
 Si prefieres compilar manualmente:
 
 ```bash
-g++ src/demo.cpp -o bin/demo.exe -Iinclude -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lbox2d
+g++ src/JuegoProyecto.cpp -o bin/JuegoProyecto.exe -Iinclude -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lbox2d -std=c++17
 ```
 
 ## ▶️ Ejecución
 
 ```bash
-bin/demo.exe
+bin/JuegoProyecto.exe
 ```
 
 ## 📦 Assets usados
@@ -78,7 +78,6 @@ El juego carga las siguientes texturas y fuentes:
 - `assets/images/alien.png`
 - `assets/images/astronaut_idle.png`
 - `assets/images/astronaut_jump.png`
-- `assets/images/astronaut_fall.png`
 - `assets/images/jetpack_icon.png`
 - `assets/images/jetpack_collectible.png`
 - `assets/images/planet_obstacule.png`
