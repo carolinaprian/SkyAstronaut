@@ -10,9 +10,13 @@ CPP_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 # Generar los nombres de los archivos .exe en el directorio de destino
 EXE_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(BIN_DIR)/%.exe,$(CPP_FILES))
 
+# Compilador y opciones
+CXX := g++
+CXXFLAGS := -std=c++17 -Iinclude
+
 # Regla para compilar cada archivo .cpp y generar el archivo .exe correspondiente
 $(BIN_DIR)/%.exe: $(SRC_DIR)/%.cpp
-	g++ $< -o $@ $(SFML) -Iinclude
+	$(CXX) $(CXXFLAGS) $< -o $@ $(SFML)
 
 # Regla por defecto para compilar todos los archivos .cpp
 all: $(EXE_FILES)

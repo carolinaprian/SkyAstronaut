@@ -1,4 +1,5 @@
 ﻿#include <SFML/Graphics.hpp>
+#include <filesystem>
 #include <vector>
 #include <random>
 #include <string>
@@ -18,6 +19,7 @@
 
 using namespace std;
 using namespace sf;
+namespace fs = std::filesystem;
 
 enum class GameState
 {
@@ -26,35 +28,64 @@ enum class GameState
     GAMEOVER
 };
 
-int main()
+static fs::path locateProjectRoot(int argc, char *argv[])
+{
+    if (argc > 0)
+    {
+        fs::path exePath = fs::absolute(fs::path(argv[0]));
+        fs::path searchPath = exePath.parent_path();
+
+        for (int i = 0; i < 4 && !searchPath.empty(); ++i)
+        {
+            if (fs::exists(searchPath / "assets"))
+                return searchPath;
+            searchPath = searchPath.parent_path();
+        }
+    }
+
+    fs::path searchPath = fs::current_path();
+    for (int i = 0; i < 4 && !searchPath.empty(); ++i)
+    {
+        if (fs::exists(searchPath / "assets"))
+            return searchPath;
+        searchPath = searchPath.parent_path();
+    }
+
+    return fs::current_path();
+}
+
+int main(int argc, char *argv[])
 {
     // Crear la ventana del juego con tamaño fijo y nombre del título.
     RenderWindow window(VideoMode(800, 600), "Sky Astronaut Runner");
     window.setFramerateLimit(60);
 
+    fs::path projectRoot = locateProjectRoot(argc, argv);
+    fs::path assetsRoot = projectRoot / "assets";
+
     // Crear el jugador y preparar sus animaciones o forma simple.
     Player astronaut;
-    bool loadedAstronaut = astronaut.loadTexture("assets/images/astronaut.png");
+    bool loadedAstronaut = astronaut.loadTexture(assetsRoot);
     if (!loadedAstronaut)
     {
-        loadedAstronaut = astronaut.loadTexture("assets/images/pikachu.png");
+        loadedAstronaut = astronaut.loadTexture(assetsRoot);
         if (!loadedAstronaut)
         {
-            std::cout << "No se encontr� astronaut.png, usando forma simple como reserva.\n";
+            std::cout << "No se encontró astronaut.png, usando forma simple como reserva.\n";
         }
     }
 
     Font font;
-    bool loadedFont = font.loadFromFile("assets/fonts/Minecraft.ttf");
+    bool loadedFont = font.loadFromFile((assetsRoot / "fonts" / "Minecraft.ttf").string());
     if (!loadedFont)
     {
-        std::cout << "No se encontr� el archivo de fuente: assets/fonts/Minecraft.ttf\n";
+        std::cout << "No se encontró el archivo de fuente: " << (assetsRoot / "fonts" / "Minecraft.ttf").string() << "\n";
     }
 
     // Fondo principal del juego: un rectángulo oscuro que simula el cielo.
     // Se dibujan estrellas sobre este fondo antes de los obstáculos y el jugador.
     Texture coverTexture;
-    bool coverTextureLoaded = coverTexture.loadFromFile("assets/images/cover.png");
+    bool coverTextureLoaded = coverTexture.loadFromFile((assetsRoot / "images" / "cover.png").string());
     Sprite coverSprite;
     if (coverTextureLoaded)
     {
@@ -68,7 +99,7 @@ int main()
     sky.setFillColor(Color(6, 18, 45));
 
     Texture alienTexture;
-    bool alienTextureLoaded = alienTexture.loadFromFile("assets/images/alien.png");
+    bool alienTextureLoaded = alienTexture.loadFromFile((assetsRoot / "images" / "alien.png").string());
     Sprite alienSprite;
     if (alienTextureLoaded)
     {
@@ -113,7 +144,7 @@ int main()
 
     // Texturas de assets usados en el HUD y en los objetos del juego.
     Texture jetpackIconTex;
-    bool jetpackIconLoaded = jetpackIconTex.loadFromFile("assets/images/jetpack_icon.png");
+    bool jetpackIconLoaded = jetpackIconTex.loadFromFile((assetsRoot / "images" / "jetpack_icon.png").string());
     Sprite jetpackIconSprite;
     if (jetpackIconLoaded)
     {
@@ -122,10 +153,10 @@ int main()
     }
 
     Texture collectibleTexture;
-    bool collectibleTextureLoaded = collectibleTexture.loadFromFile("assets/images/jetpack_collectible.png");
+    bool collectibleTextureLoaded = collectibleTexture.loadFromFile((assetsRoot / "images" / "jetpack_collectible.png").string());
 
     Texture obstacleTexture;
-    bool obstacleTextureLoaded = obstacleTexture.loadFromFile("assets/images/planet_obstacule.png");
+    bool obstacleTextureLoaded = obstacleTexture.loadFromFile((assetsRoot / "images" / "planet_obstacule.png").string());
 
     if (loadedFont)
     {

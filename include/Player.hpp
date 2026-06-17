@@ -2,17 +2,18 @@
 
 #include "AnimatedSprite.hpp"
 #include <SFML/Graphics.hpp>
+#include <filesystem>
 #include <string>
 
 using namespace std;
 using namespace sf;
+namespace fs = std::filesystem;
 
 struct Player
 {
     RectangleShape shape;
     AnimatedSprite idleAnim;
     AnimatedSprite jumpAnim;
-    AnimatedSprite fallAnim;
     bool useSprite = false;
     float x = 150.f;
     float y = 0.f;
@@ -44,11 +45,10 @@ struct Player
         {
             idleAnim.sprite.setPosition(x, y);
             jumpAnim.sprite.setPosition(x, y);
-            fallAnim.sprite.setPosition(x, y);
         }
     }
 
-    bool loadTexture(const string &path)
+    bool loadTexture(const fs::path &basePath)
     {
         bool any = false;
         const float displaySize = 64.f;
@@ -60,40 +60,47 @@ struct Player
                 anim.sprite.setScale(displaySize / texW, displaySize / texH);
         };
 
-        // Sprite sheets horizontales con ancho uniforme por frame.
-        // Idle: 2 frames de 96px cada uno.
-        if (idleAnim.load("assets/images/astronaut_idle.png", 2, 96, 96))
+        fs::path root = basePath;
+        if (fs::exists(root) && fs::is_regular_file(root))
+            root = root.parent_path();
+        if (!fs::exists(root) || !fs::is_directory(root))
+            root = fs::current_path();
+
+        fs::path imagesRoot = root;
+        if (root.filename() == "assets")
+            imagesRoot = root / "images";
+        else if (fs::exists(root / "assets"))
+            imagesRoot = root / "assets" / "images";
+        else
+            imagesRoot = root / "images";
+
+        auto imagePath = [&](const string &name) {
+            return (imagesRoot / name).string();
+        };
+
+        if (idleAnim.load(imagePath("astronaut_idle.png"), 2, 96, 96))
         {
             any = true;
             idleAnim.frameTime = 0.18f;
             applyScale(idleAnim);
         }
-        else if (idleAnim.load("assets/images/astronaut_idle 2 frame.png", 2, 96, 96))
+        else if (idleAnim.load(imagePath("astronaut_idle 2 frame.png"), 2, 96, 96))
         {
             any = true;
             idleAnim.frameTime = 0.18f;
             applyScale(idleAnim);
         }
 
-        // Jump: 3 frames de 96px cada uno.
-        if (jumpAnim.load("assets/images/astronaut_jump.png", 3, 96, 96))
+        if (jumpAnim.load(imagePath("astronaut_jump.png"), 3, 96, 96))
         {
             any = true;
             jumpAnim.frameTime = 0.1f;
             applyScale(jumpAnim);
         }
 
-        // Fall: 2 frames de 96px cada uno.
-        if (fallAnim.load("assets/images/astronaut_fall.png", 2, 96, 96))
+        if (!any)
         {
-            any = true;
-            fallAnim.frameTime = 0.14f;
-            applyScale(fallAnim);
-        }
-
-        if (!any && !path.empty())
-        {
-            if (idleAnim.load(path))
+            if (idleAnim.load(imagePath("astronaut.png")))
             {
                 any = true;
                 idleAnim.frameTime = 0.18f;
@@ -103,7 +110,7 @@ struct Player
 
         if (!any)
         {
-            if (idleAnim.load("assets/images/pikachu.png"))
+            if (idleAnim.load(imagePath("pikachu.png")))
             {
                 any = true;
                 idleAnim.frameTime = 0.18f;
@@ -116,7 +123,6 @@ struct Player
         {
             idleAnim.sprite.setPosition(x, y);
             jumpAnim.sprite.setPosition(x, y);
-            fallAnim.sprite.setPosition(x, y);
         }
 
         return useSprite;
@@ -144,10 +150,8 @@ struct Player
         {
             idleAnim.update();
             jumpAnim.update();
-            fallAnim.update();
             idleAnim.sprite.setPosition(x, y);
             jumpAnim.sprite.setPosition(x, y);
-            fallAnim.sprite.setPosition(x, y);
         }
         else
         {
@@ -162,8 +166,6 @@ struct Player
             const float thresh = 20.f;
             if (velocityY < -thresh && jumpAnim.loaded)
                 window.draw(jumpAnim.sprite);
-            else if (velocityY > thresh && fallAnim.loaded)
-                window.draw(fallAnim.sprite);
             else
                 window.draw(idleAnim.sprite);
         }
