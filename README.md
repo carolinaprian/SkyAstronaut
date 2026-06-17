@@ -1,80 +1,107 @@
 # Sky Astronaut Runner
 
-Juego runner en C++ con SFML donde un astronauta salta automáticamente para evitar obstáculos y recoger coleccionables.
+Juego runner en C++ usando SFML, donde un astronauta corre automáticamente y debe saltar para evitar obstáculos mientras recoge coleccionables.
 
-## 🎯 Objetivo del juego
+## 🎯 Descripción
 
-Controlas a un astronauta que corre automáticamente hacia la derecha.
-El objetivo es sobrevivir el mayor tiempo posible evitando obstáculos y acumulando puntos al recoger objetos.
+En `Sky Astronaut Runner`, controlas a un astronauta que avanza solo hacia la derecha. Tu misión es sobrevivir el mayor tiempo posible, esquivar los ojos cósmicos y planetas, y recolectar cargas de jetpack para ganar puntaje.
 
-## 🎮 Mecánicas y controles
+El juego incluye:
+- pantalla de portada (`COVER`)
+- modo de juego activo (`PLAYING`)
+- pantalla de fin de juego (`GAMEOVER`)
+- sistema de puntaje y mejor puntaje
+- recarga de saltos con coleccionables
 
-- El jugador corre solo hacia la derecha.
-- Presiona `Espacio` para saltar.
-- Si golpeas un obstáculo, el juego termina.
-- Presiona `R` para reiniciar después de perder.
-- Presiona `Esc` o cierra la ventana para salir del juego.
+## 🎮 Controles
+
+- `Espacio` — saltar / usar carga de salto
+- `R` — reiniciar después de perder
+- `Esc` / cerrar ventana — salir del juego
+
+## 🧠 Mecánicas principales
+
+- El astronauta avanza automáticamente hacia la derecha.
+- El jugador controla el salto usando cargas limitadas.
+- Al recoger un coleccionable, sumas `10` puntos y ganas una carga adicional.
+- El choque con un obstáculo o salir de la pantalla produce `GAME OVER`.
+- El juego registra el `puntaje` actual y el `mejor puntaje`.
 
 ## 📁 Estructura del proyecto
 
-- `src/demo.cpp` — código principal del juego y bucle de ejecución.
-- `include/AnimatedSprite.hpp` — animación de sprites por frames.
-- `include/Player.hpp` — lógica del jugador, salto y dibujado.
-- `include/Obstacle.hpp` — definición de obstáculos y su movimiento.
-- `include/Collectible.hpp` — definición de objetos coleccionables.
-- `makefile` — reglas de compilación con SFML e inclusión de `include/`.
-- `assets/images/` — sprites e imágenes usadas por el juego.
+- `src/demo.cpp` — lógica principal, bucle de juego, generación de obstáculos y coleccionables.
+- `include/Player.hpp` — lógica de movimiento, gravedad, saltos, animación y colisiones del jugador.
+- `include/AnimatedSprite.hpp` — gestión simple de sprites animados por frames.
+- `include/Obstacle.hpp` — definición de obstáculos móviles.
+- `include/Collectible.hpp` — definición de coleccionables.
+- `makefile` — reglas de compilación para `g++` con SFML.
+- `assets/images/` — texturas y sprites.
 - `assets/fonts/` — fuente para HUD y mensajes.
 - `bin/` — ejecutable compilado.
-- `gallery/` — portada del proyecto.
-- `screenshots/` — capturas del juego.
-- `video/` — video de juego para entrega.
+- `gallery/` — material extra para entrega.
+- `gallery/screenshots/` — capturas del juego.
+- `gallery/video/` — video de demo.
 
-## 🛠️ Cómo compilar
+## 🛠️ Requisitos
 
-Desde la carpeta del proyecto, ejecuta:
+- `g++` compatible con C++11 o superior
+- SFML con los módulos: `graphics`, `window`, `system`, `audio`
+- `make` disponible en el sistema
+
+## 💻 Compilación
+
+Desde la carpeta raíz del proyecto:
 
 ```bash
 make all
 ```
 
-Luego ejecuta:
+Esto compila `src/demo.cpp` y genera `bin/demo.exe`.
+
+Si prefieres compilar manualmente:
+
+```bash
+g++ src/demo.cpp -o bin/demo.exe -Iinclude -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lbox2d
+```
+
+## ▶️ Ejecución
 
 ```bash
 bin/demo.exe
 ```
 
-> Nota: El proyecto requiere SFML instalado y accesible desde el compilador.
+## 📦 Assets usados
 
-## 📌 Recursos necesarios
+El juego carga las siguientes texturas y fuentes:
 
-El juego usa estas rutas de assets:
+- `assets/images/cover.png`
+- `assets/images/alien.png`
+- `assets/images/astronaut_idle.png`
+- `assets/images/astronaut_jump.png`
+- `assets/images/astronaut_fall.png`
+- `assets/images/jetpack_icon.png`
+- `assets/images/jetpack_collectible.png`
+- `assets/images/planet_obstacule.png`
+- `assets/fonts/Minecraft.ttf`
 
-- `assets/images/astronaut.png` — sprite principal del astronauta.
-- `assets/images/astronaut_idle.png` — animación de idle del astronauta.
-- `assets/images/astronaut_jump.png` — animación de salto.
-- `assets/images/astronaut_fall.png` — animación de caída.
-- `assets/images/jetpack_icon.png` — icono que se muestra en el HUD.
-- `assets/fonts/Minecraft.ttf` — fuente para texto en pantalla.
+> Nota: Si no se encuentra el sprite principal del astronauta, el juego usa una forma simple como reserva.
 
-Si no se cargan las imágenes del astronauta, el juego usa una forma simple como reserva.
+## ✅ Estado actual del proyecto
 
-## ✅ Estado actual
+- Runner funcional con físicas simples de salto y gravedad.
+- Obstáculos y coleccionables generados dinámicamente.
+- Puntaje y mejor puntaje en pantalla.
+- Pantalla de inicio y mensaje de reinicio.
+- Animaciones por frames para el jugador si las texturas están disponibles.
 
-- Juego básico implementado en C++ y SFML.
-- Saltos, obstacles y coleccionables están funcionando.
-- Puntaje, mejor puntaje y mensaje de reinicio presentes.
-- Código refactorizado en headers bajo `include/` para separar las clases.
+## 🔧 Notas importantes
 
-## 📌 Próximos pasos recomendados
-
-- Añadir o reemplazar `assets/images/astronaut.png` con el sprite final.
-- Incluir `assets/images/astronaut_jump.png` y `assets/images/astronaut_fall.png` para animaciones completas.
-- Agregar `gallery/cover.png` y al menos 3 capturas en `screenshots/`.
-- Generar `video/demo.mp4` mostrando gameplay y reinicios.
+- `make clean` elimina los ejecutables generados en `bin/`.
+- El juego lee `assets/fonts/Minecraft.ttf` para mostrar texto; si falta la fuente, se imprime un mensaje en la consola.
+- La pantalla de portada usa `assets/images/cover.png` si está disponible.
 
 ## 🚀 Créditos
 
-- Juego creado con C++ y SFML.
-- Autor: [Tu nombre aquí]
-- Assets usados: `assets/images/` y `assets/fonts/Minecraft.ttf`.
+- Desarrollo: C++ y SFML
+- Autores: Carolina Prian y Karla Hernandez
+- Ruta de los recursos: `assets/` y `gallery/`
